@@ -1,4 +1,7 @@
-
+/**
+ * A key:value pair
+ *
+ */
 public class MessageData {
 
     private String key;

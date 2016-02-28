@@ -16,6 +16,12 @@ public class Message {
 		return commandID;
 	}
     
+    /**
+     * constructor
+     * @param sender process id of the sending instance of protocol
+     * @param receivers list of process IDs of the recieving instances of protocol
+     * @param messageData a key:value pair
+     */
     public Message(String sender, List<String> receivers, MessageData messageData, int checksum, int commandID)
     {
         this.sender = sender;
@@ -25,6 +31,12 @@ public class Message {
         this.checksum = checksum;
     }
 
+    /**
+     * constructor
+     * @param sender process id of the sending instance of protocol
+     * @param receivers list of process IDs of the recieving instances of protocol
+     * @param messageData a key:value pair
+     */
 	public Message(String sender, List<String> receivers, MessageData messageData, int commandID)
 	{
         this.sender = sender;
@@ -34,6 +46,12 @@ public class Message {
         this.checksum = 0;
     }
 
+    /**
+     * constructor
+     * @param sender process id of the sending instance of protocol
+     * @param receiver process id of the recieving instance of protocol
+     * @param messageData a key:value pair
+     */
     public Message(String sender, String receiver, MessageData messageData, int checksum, int commandID)
     {
         this.sender = sender;
@@ -43,6 +61,12 @@ public class Message {
         this.commandID = commandID;
     }
     
+    /**
+     * constructor
+     * @param sender process id of the sending instance of protocol
+     * @param receiver process id of the recieving instance of protocol
+     * @param messageData a key:value pair
+     */
     public Message(String sender, String receiver, MessageData messageData, int commandID)
     {
         this.sender = sender;

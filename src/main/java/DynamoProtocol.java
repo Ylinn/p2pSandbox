@@ -1,6 +1,8 @@
 import java.util.*;
 
-/*
+/**
+ * Dynamo protocol implementation
+ * 
  * Message commandID interpretation:
  * 0 - LOCAL_GET_REQUEST
  * 1 - GET_REPLY
@@ -74,6 +76,7 @@ public class DynamoProtocol implements IProtocol {
 	@Override
 	public void wait(Map<String, String> data, ISocket socket)
 	{
+
 		if (checkingConsistency) {
             if (consistencyWait < consistencyTimeout) {
                 System.out.println("\n\n\nConsistency waiting\n\n\n");
@@ -89,6 +92,14 @@ public class DynamoProtocol implements IProtocol {
         }
 	}
 	
+	/**
+	 * Analyze if responses from other replicas are consistent
+	 * 
+	 * Execute this function after consistency check request. Checks if all replicas responded consistently
+	 * TODO: Wrong, needs rework
+	 * 
+	 * @param socket this processes socket
+	 */
 	private void analyzeConsistencyReplies(ISocket socket) {
         System.out.println("\n\nCONSISTENCY REPORT:");
         //magic number 3 - replicas number
@@ -156,6 +167,9 @@ public class DynamoProtocol implements IProtocol {
         }
 	}
 	
+	/**
+	 * Get ids of nodes storing the key
+	 */
     private List<String> getNodeIdsByKey(String key) {
     	int size = this.otherNodes.size();
         int centralNodeIndex = hash(key) % size;
@@ -169,6 +183,9 @@ public class DynamoProtocol implements IProtocol {
         return result;
     }
 
+    /**
+     * distributed get. Sends a local get request to an appropriate node
+     */
     private void executeGet(String key, ISocket socket)
     {
         String receiverNodeId = getNodeIdsByKey(key).get(0);
@@ -177,6 +194,9 @@ public class DynamoProtocol implements IProtocol {
         socket.acceptMessage(getMessage);
     }
     
+    /**
+     * distributed put. Sends local put requests to all appropriate nodes.
+     */
     private void executePut(String key, String value, ISocket socket)
     {
         List<String> receiverIds = getNodeIdsByKey(key);
@@ -184,7 +204,15 @@ public class DynamoProtocol implements IProtocol {
         Message putMessage = new Message(pid, receiverIds, data, 2);
         socket.acceptMessage(putMessage);
     }
-    
+
+    /**
+     * Sends a response with the data associated with the key
+     * 
+     * @param key requested key
+     * @param sender requesting node
+     * @param data local database
+     * @param socket local socket
+     */
     private void executeLocalGet(String key, String sender, Map<String, String> data, ISocket socket)
     {
 		String value = data.get(key);
@@ -197,6 +225,12 @@ public class DynamoProtocol implements IProtocol {
         }
     }
     
+    /**
+     * remove a key from local node
+     * 
+     * @param key key to remove
+     * @param data local database
+     */
     private void executeLocaRemove(String key, Map<String, String> data)
     {
 		if (data.containsKey(key)) {
@@ -209,6 +243,13 @@ public class DynamoProtocol implements IProtocol {
         }
     }
     
+    /**
+     * add a key to local node
+     * 
+     * @param key key to add
+     * @param value value to add
+     * @param data local database
+     */
 	private void executeLocalPut(String key, String value, Map<String, String> data)
 	{
         int checksum = hash(key) + hash(value);
@@ -217,6 +258,12 @@ public class DynamoProtocol implements IProtocol {
 		System.out.println("Data inserted to node " + pid);
     }
 	
+	/**
+	 * Initiate consistency check
+	 * 
+	 * @param data local database
+	 * @param socket local socket
+	 */
 	private void executeConsistencyCheck(Map<String, String> data, ISocket socket)
 	{
         checkingConsistency = true;
